@@ -42,7 +42,7 @@ class PassportController extends Controller
                 $message = 'success';
                 $errors = [];
                 $tokenResult = $user->createToken('Acceso PIXZELLE');
-                
+                return $tokenResult;
                 $token = $tokenResult->token;
                 if ($request->remember_me)
                     $token->expires_at = Carbon::now()->addWeeks(1);
