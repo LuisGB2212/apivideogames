@@ -10,14 +10,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use GuzzleHttp\Client;
 use Illuminate\Http\Response;
+use App\Transformers\UserTransformer;
 
 class PassportController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('transform.input:' . UserTransformer::class)->only(['store', 'update']);
+    }
+
     public function login(Request $request){
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
-            'remember_me' => 'boolean'
         ]);
 
         $message = "error";
@@ -28,7 +33,7 @@ class PassportController extends Controller
         $expires_at = null;
         $users = null;
 
-        if($user = User::whereEmail($request->email)->where('type','admin')->first()){
+        if($user = User::whereEmail($request->email)->where('type_user','admin')->first()){
             $errors = ['password' => 'Contraseña incorrecta'];
             if(Hash::check($request->password, $user->password)){
                 $code = 200;
