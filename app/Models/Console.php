@@ -14,4 +14,9 @@ class Console extends Model
         'year',
         'registered_id'
     ];
+
+    public function userRegistered()
+    {
+        return $this->belongsTo(User::class, 'registered_id');
+    }
 }

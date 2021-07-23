@@ -77,8 +77,13 @@ class PassportController extends Controller
 
     public function user(Request $request)
     {
+        $user = null;
+        if($request->user()->type_user == 'admin'){
+            $user = fractal($request->user(), new UserTransformer())->toArray();
+        }
+        
         return response()->json([
-            'user' => fractal($request->user(), new UserTransformer())->toArray(),
+            'user' => $user,
         ]);
         // return response()->json([
         //     'user' => fractal()

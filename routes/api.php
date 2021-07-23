@@ -27,7 +27,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Backend'], function () {
         Route::get('user', 'Auth\PassportController@user');
 
         Route::apiResource('users','cms\UserController');
-        Route::apiResource('video-games','cms\VideoGameController');
+        Route::apiResource('consoles','cms\ConsoleController');
+        // Route::apiResource('video-games','cms\VideoGameController');
         
     });
 
