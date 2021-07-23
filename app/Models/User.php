@@ -7,12 +7,17 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     
     public $transformer = UserTransformer::class;
+
+    protected $withCount = ['userVideoGames'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,9 +26,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
         'type_user',
-        'rol_id'
+        'rol_id',
+        'password'
     ];
 
     /**
@@ -44,4 +49,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
+    public function userVideoGames()
+    {
+        return $this->hasMany(UserVideoGame::class);
+    }
 }

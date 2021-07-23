@@ -16,17 +16,19 @@ class PassportController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('transform.input:' . UserTransformer::class)->only(['store', 'update']);
+        $this->middleware('transform.input:' . UserTransformer::class)->only(['login']);
     }
 
     public function login(Request $request){
+
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-
+        
+        //return $request->all();
         $message = "error";
-        $errors = ['email' => 'correo no encontrado'];
+        $errors = 'correo no encontrado';
         $code = 404;
         $access_token = null;
         $token_type = null;
@@ -34,7 +36,7 @@ class PassportController extends Controller
         $users = null;
 
         if($user = User::whereEmail($request->email)->where('type_user','admin')->first()){
-            $errors = ['password' => 'Contraseña incorrecta'];
+            $errors = 'Contraseña incorrecta';
             if(Hash::check($request->password, $user->password)){
                 $code = 200;
                 $message = 'success';
@@ -49,7 +51,7 @@ class PassportController extends Controller
                 $access_token = $tokenResult->accessToken;
                 $token_type = 'Bearer';
                 $expires_at = Carbon::parse($token->expires_at)->toDateTimeString();
-                $users = $user;
+                $users = fractal($user, new UserTransformer())->toArray();
             }
         }
         
@@ -75,9 +77,15 @@ class PassportController extends Controller
 
     public function user(Request $request)
     {
-        //$request->user()->notify(new NotificationTest($request->user()));
         return response()->json([
-            'user' => $request->user()
+            'user' => fractal($request->user(), new UserTransformer())->toArray(),
         ]);
+        // return response()->json([
+        //     'user' => fractal()
+        //     ->collection($request->user())
+        //     ->transformWith(new UserTransformer())
+        //     ->includeCharacters()
+        //     ->toArray(),
+        // ]);
     }
 }

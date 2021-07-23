@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Backend\cms;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -14,17 +16,20 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $users = User::orderBy('type_user','asc')->withTrashed()->paginate(25);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'message' => 'success',
+            'data' => $users,
+            'pagination' => [
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem()
+            ],
+        ], 200);
     }
 
     /**
@@ -35,7 +40,21 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|unique:users|email',
+            'type_user' => 'required',
+            'password' => 'required', //confirmed
+        ]);
+
+        $request['rol_id'] = 1;
+        $request['password'] = Hash::make($request->password);
+        $user = User::create($request->all());
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user,
+        ], 200);
     }
 
     /**
@@ -44,20 +63,12 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return response()->json([
+            'message' => 'success',
+            'data' => $user
+        ], 200);
     }
 
     /**
@@ -67,9 +78,26 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        if(isset($request->password) != ""){
+            $request['password'] = Hash::make($request->password);
+        }else{
+            $request['password'] = $user->password;
+        }
+        
+        $user->fill($request->all());
+        $message = 'change';
+
+        if($user->isDirty()){
+            $message = 'success';
+            $user->save();
+        }
+
+        return response()->json([
+            'message' => $message,
+            'data' => $user
+        ], 200);
     }
 
     /**
@@ -78,8 +106,13 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        $user->delete();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user,
+        ], 200);
     }
 }
