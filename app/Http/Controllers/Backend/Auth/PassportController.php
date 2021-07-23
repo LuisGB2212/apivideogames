@@ -6,8 +6,10 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Http\Response;
+use GuzzleHttp\Client;
+use Illuminate\Http\Response;
 use App\Transformers\UserTransformer;
 
 class PassportController extends Controller
@@ -24,7 +26,7 @@ class PassportController extends Controller
             'password' => 'required|string',
         ]);
         
-        return User::all();
+        //return $request->all();
         $message = "error";
         $errors = 'correo no encontrado';
         $code = 404;
@@ -79,7 +81,7 @@ class PassportController extends Controller
         if($request->user()->type_user == 'admin'){
             $user = fractal($request->user(), new UserTransformer())->toArray();
         }
-        
+
         return response()->json([
             'user' => $user,
         ]);
