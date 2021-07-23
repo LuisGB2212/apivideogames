@@ -20,7 +20,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::group(['prefix' => 'admin', 'namespace' => 'Backend'], function () {
-    Route::post('login', 'Auth\PassportController@login');
+    Route::post('login', function (Request $request)
+    {
+        return $request->all();
+    });
 
     Route::group(['middleware' => 'auth:api'], function() {
         Route::post('logout', 'Auth\PassportController@logout');
